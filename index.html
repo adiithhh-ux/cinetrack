@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineTrack 🎬 | Your Watchlist. Your Journey. Your Universe.</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              main: '#101117',
+              card: '#181A24',
+              cardHover: '#212433',
+              cardSubtle: '#1C1F2E',
+              input: '#12131D',
+              accent: '#9B83FF',
+              accentHover: '#8566FF',
+              secondary: '#6C56DF',
+              textMain: '#F4F4F8',
+              textSecondary: '#9294A6',
+              success: '#63D6A2',
+              warning: '#F5A623',
+              danger: '#FF5C5C',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col md:flex-row antialiased">
+
+  <!-- Mobile Top Bar -->
+  <header class="md:hidden glass-panel sticky top-0 z-30 px-4 py-3 flex items-center justify-between border-b" style="border-color: var(--border-color);">
+    <div class="flex items-center space-x-3">
+      <button id="mobileMenuBtn" aria-label="Toggle mobile menu" class="p-2 rounded-lg text-secondary hover:text-white transition-colors">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+          🎬
+        </div>
+        <span class="font-display font-bold text-lg tracking-tight accent-gradient-text">CineTrack</span>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2">
+      <button id="mobileThemeToggleBtn" aria-label="Toggle theme" class="w-9 h-9 rounded-lg flex items-center justify-center theme-input hover:text-brand-accent transition-colors">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+      <button id="mobileQuickAddBtn" aria-label="Add Title" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white flex items-center space-x-1 shadow-md" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+        <i class="fa-solid fa-plus text-xs"></i>
+        <span>Add</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar Overlay for Mobile -->
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
+
+  <!-- Sidebar Navigation -->
+  <aside id="sidebar" class="fixed md:sticky top-0 left-0 h-screen w-64 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shrink-0 border-r glass-panel" style="border-color: var(--border-color);">
+    <!-- Logo area -->
+    <div class="p-5 flex items-center justify-between border-b" style="border-color: var(--border-color);">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-purple-500/20" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+          🎬
+        </div>
+        <div>
+          <h1 class="font-display font-bold text-xl tracking-tight accent-gradient-text">CineTrack</h1>
+          <p class="text-[10px] font-medium tracking-wider uppercase" style="color: var(--text-muted);">Entertainment Tracker</p>
+        </div>
+      </div>
+      <button id="closeSidebarBtn" class="md:hidden p-1.5 rounded-lg text-secondary hover:text-white" aria-label="Close Sidebar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Quick Add Button in Sidebar -->
+    <div class="px-4 pt-4 pb-2">
+      <button id="sidebarQuickAddBtn" class="w-full py-2.5 px-4 rounded-xl text-white font-medium text-sm flex items-center justify-center space-x-2 transition-all duration-200 shadow-md hover:shadow-purple-500/30 hover:scale-[1.02] active:scale-[0.98]" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+        <i class="fa-solid fa-circle-plus"></i>
+        <span>Add New Title</span>
+      </button>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="flex-1 overflow-y-auto px-3 py-2 space-y-1" id="navLinks">
+      <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider" style="color: var(--text-muted);">Main Overview</div>
+      
+      <button data-view="dashboard" class="nav-item active w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-150">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-house-chimney w-4 text-center"></i>
+          <span>Dashboard</span>
+        </div>
+      </button>
+
+      <button data-view="library" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-150">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-film w-4 text-center"></i>
+          <span>My Library</span>
+        </div>
+        <span id="badgeTotal" class="px-2 py-0.5 text-xs rounded-full font-semibold" style="background: var(--bg-card-subtle); color: var(--text-secondary);">0</span>
+      </button>
+
+      <div class="pt-3 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider" style="color: var(--text-muted);">Watch Status</div>
+
+      <button data-view="watching" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-150">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-play w-4 text-center text-brand-accent"></i>
+          <span>Currently Watching</span>
+        </div>
+        <span id="badgeWatching" class="px-2 py-0.5 text-xs rounded-full font-semibold bg-purple-500/20 text-brand-accent">0</span>
+      </button>
+
+      <button data-view="plan" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-150">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-bookmark w-4 text-center text-blue-400"></i>
+          <span>Plan to Watch</span>
+        </div>
+        <span id="badgePlan" class="px-2 py-0.5 text-xs rounded-full font-semibold bg-blue-500/20 text-blue-400">0</span>
+      </button>
+
+      <button data-view="completed" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-150">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-circle-check w-4 text-center text-brand-success"></i>
+          <span>Completed</span>
+        </div>
+        <span id="badgeCompleted" class="px-2 py-0.5 text-xs rounded-full font-semibold bg-green-500/20 text-brand-success">0</span>
+      </button>
+
+      <button data-view="dropped" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-150">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-circle-xmark w-4 text-center text-red-400"></i>
+          <span>Dropped</span>
+        </div>
+        <span id="badgeDropped" class="px-2 py-0.5 text-xs rounded-full font-semibold bg-red-500/20 text-red-400">0</span>
+      </button>
+
+      <div class="pt-3 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider" style="color: var(--text-muted);">Collections & Formats</div>
+
+      <button data-view="favorites" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-150">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-heart w-4 text-center text-pink-400"></i>
+          <span>Favorites</span>
+        </div>
+        <span id="badgeFavorites" class="px-2 py-0.5 text-xs rounded-full font-semibold bg-pink-500/20 text-pink-400">0</span>
+      </button>
+
+      <button data-view="movies" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-150">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-clapperboard w-4 text-center text-amber-400"></i>
+          <span>Movies</span>
+        </div>
+        <span id="badgeMovies" class="px-2 py-0.5 text-xs rounded-full font-semibold" style="background: var(--bg-card-subtle); color: var(--text-secondary);">0</span>
+      </button>
+
+      <button data-view="anime_tv" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-150">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-tv w-4 text-center text-indigo-400"></i>
+          <span>Anime & TV Series</span>
+        </div>
+        <span id="badgeAnimeTv" class="px-2 py-0.5 text-xs rounded-full font-semibold" style="background: var(--bg-card-subtle); color: var(--text-secondary);">0</span>
+      </button>
+
+      <button data-view="statistics" class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-150">
+        <div class="flex items-center space-x-3">
+          <i class="fa-solid fa-chart-pie w-4 text-center text-emerald-400"></i>
+          <span>Statistics</span>
+        </div>
+      </button>
+    </nav>
+
+    <!-- Sidebar Footer / User & Tools -->
+    <div class="p-3 border-t space-y-2" style="border-color: var(--border-color);">
+      <div class="flex items-center justify-between px-2">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-400 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+            CT
+          </div>
+          <div>
+            <div class="text-xs font-semibold">Cinephile</div>
+            <div class="text-[10px]" style="color: var(--text-muted);">Pro Watcher</div>
+          </div>
+        </div>
+        <div class="flex items-center space-x-1">
+          <button id="themeToggleBtn" aria-label="Toggle theme" title="Toggle Dark/Light Mode" class="w-8 h-8 rounded-lg flex items-center justify-center text-xs theme-input hover:text-brand-accent transition-colors">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <button id="openBackupBtn" aria-label="Backup & Restore" title="Backup & Restore (JSON)" class="w-8 h-8 rounded-lg flex items-center justify-center text-xs theme-input hover:text-brand-accent transition-colors">
+            <i class="fa-solid fa-sliders"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 flex flex-col min-w-0 min-h-screen">
+    <!-- Top Action & Search Bar (Desktop) -->
+    <header class="glass-panel sticky top-0 z-20 px-6 py-3.5 border-b flex items-center justify-between gap-4" style="border-color: var(--border-color);">
+      <div class="flex items-center space-x-3 flex-1 max-w-lg">
+        <div class="relative w-full">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs" style="color: var(--text-muted);"></i>
+          <input type="text" id="globalSearchInput" placeholder="Search movies, anime, TV series, genres... (Ctrl+K)" 
+            class="theme-input w-full pl-9 pr-16 py-2 rounded-xl text-sm transition-all placeholder:text-gray-500">
+          <kbd class="hidden sm:inline-block absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-mono rounded border" style="border-color: var(--border-color); color: var(--text-muted); background: var(--bg-card);">⌘K</kbd>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3 shrink-0">
+        <!-- Quick Filter Badge Info -->
+        <div id="activeFilterBadge" class="hidden text-xs px-2.5 py-1 rounded-lg border font-medium items-center space-x-1.5" style="border-color: var(--primary-accent); color: var(--primary-accent); background: var(--primary-accent-glow);">
+          <span id="activeFilterText">Filtered</span>
+          <button id="clearActiveFilterBtn" aria-label="Clear active filter" class="hover:opacity-75">
+            <i class="fa-solid fa-xmark text-[10px]"></i>
+          </button>
+        </div>
+
+        <button id="headerQuickAddBtn" class="px-4 py-2 rounded-xl text-white text-xs font-semibold flex items-center space-x-2 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+          <i class="fa-solid fa-plus"></i>
+          <span>Add Title</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Views Container -->
+    <div class="flex-1 p-4 md:p-6 lg:p-8 space-y-6">
+
+      <!-- ================= VIEW A: DASHBOARD ================= -->
+      <section id="viewDashboard" class="view-section space-y-6">
+        <!-- Hero Banner with Tagline & Dynamic Artwork -->
+        <div class="relative rounded-2xl overflow-hidden p-6 md:p-10 border shadow-2xl" style="border-color: var(--border-color); background: linear-gradient(135deg, rgba(24, 26, 36, 0.95), rgba(16, 17, 23, 0.9));">
+          <!-- Background Image with Overlay -->
+          <div class="absolute inset-0 z-0 opacity-25 mix-blend-luminosity bg-cover bg-center pointer-events-none" style="background-image: url('user_uploaded_files/ttl=63d/tool_generated/watermarked_img_12512302262845285473.jpg');"></div>
+          <div class="absolute inset-0 z-0 bg-gradient-to-r from-brand-main via-brand-main/80 to-transparent pointer-events-none"></div>
+
+          <div class="relative z-10 max-w-2xl space-y-3">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-md" style="border-color: rgba(155, 131, 255, 0.3); background: rgba(155, 131, 255, 0.1); color: var(--primary-accent);">
+              <i class="fa-solid fa-sparkles text-[10px]"></i>
+              <span>CineTrack v1.0 • Personal Entertainment Tracker</span>
+            </div>
+            <h2 class="font-display font-extrabold text-2xl md:text-4xl tracking-tight leading-tight">
+              Your Watchlist. Your Journey. <span class="accent-gradient-text">Your Universe.</span>
+            </h2>
+            <p class="text-sm md:text-base leading-relaxed" style="color: var(--text-secondary);">
+              Keep track of every anime episode, film masterpiece, and TV binge in one beautifully organized dashboard. Rate, review, and never lose your place again.
+            </p>
+            <div class="pt-2 flex flex-wrap items-center gap-3">
+              <button id="heroAddBtn" class="px-5 py-2.5 rounded-xl text-white font-semibold text-sm flex items-center space-x-2 shadow-lg shadow-purple-500/25 transition-transform hover:scale-105 active:scale-95" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Title to Watchlist</span>
+              </button>
+              <button data-target="library" class="view-switch-btn px-5 py-2.5 rounded-xl font-semibold text-sm border theme-card flex items-center space-x-2 hover:border-brand-accent transition-colors">
+                <i class="fa-solid fa-table-cells-large text-brand-accent"></i>
+                <span>Explore Full Library</span>
+              </button>
+              <button data-target="statistics" class="view-switch-btn px-4 py-2.5 rounded-xl font-semibold text-sm border theme-card flex items-center space-x-2 hover:border-brand-accent transition-colors">
+                <i class="fa-solid fa-chart-line text-brand-success"></i>
+                <span>Analytics</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bento Grid: Key Metrics & Library Progress -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Total Titles -->
+          <div class="theme-card rounded-2xl p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold tracking-wider uppercase" style="color: var(--text-muted);">Total Library</span>
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/10 text-brand-accent group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-film text-base"></i>
+              </div>
+            </div>
+            <div class="mt-4 flex items-baseline space-x-2">
+              <span id="statTotalTitles" class="font-display font-extrabold text-3xl">0</span>
+              <span class="text-xs" style="color: var(--text-secondary);">titles</span>
+            </div>
+            <div class="mt-2 text-xs flex items-center space-x-1" style="color: var(--text-muted);">
+              <span id="statTypeBreakdownMini">0 Movies • 0 Shows</span>
+            </div>
+          </div>
+
+          <!-- Completed Titles -->
+          <div class="theme-card rounded-2xl p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold tracking-wider uppercase" style="color: var(--text-muted);">Completed</span>
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-green-500/10 text-brand-success group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-circle-check text-base"></i>
+              </div>
+            </div>
+            <div class="mt-4 flex items-baseline space-x-2">
+              <span id="statCompletedTitles" class="font-display font-extrabold text-3xl text-brand-success">0</span>
+              <span id="statCompletionRate" class="text-xs px-2 py-0.5 rounded-full font-semibold bg-green-500/10 text-brand-success">0%</span>
+            </div>
+            <div class="mt-2 text-xs flex items-center space-x-1" style="color: var(--text-muted);">
+              <span>Finished from library</span>
+            </div>
+          </div>
+
+          <!-- Currently Watching -->
+          <div class="theme-card rounded-2xl p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold tracking-wider uppercase" style="color: var(--text-muted);">In Progress</span>
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/10 text-blue-400 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-circle-play text-base"></i>
+              </div>
+            </div>
+            <div class="mt-4 flex items-baseline space-x-2">
+              <span id="statWatchingTitles" class="font-display font-extrabold text-3xl text-blue-400">0</span>
+              <span class="text-xs" style="color: var(--text-secondary);">active</span>
+            </div>
+            <div class="mt-2 text-xs flex items-center space-x-1" style="color: var(--text-muted);">
+              <span>Currently watching</span>
+            </div>
+          </div>
+
+          <!-- Episodes Watched & Hours -->
+          <div class="theme-card rounded-2xl p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold tracking-wider uppercase" style="color: var(--text-muted);">Episodes Watched</span>
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10 text-brand-warning group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-clock text-base"></i>
+              </div>
+            </div>
+            <div class="mt-4 flex items-baseline space-x-2">
+              <span id="statEpisodesWatched" class="font-display font-extrabold text-3xl text-brand-warning">0</span>
+              <span class="text-xs" style="color: var(--text-secondary);">eps</span>
+            </div>
+            <div class="mt-2 text-xs flex items-center space-x-1" style="color: var(--text-muted);">
+              <span id="statEstimatedHours">~0 hours screen time</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Continue Watching (Progress Bars & Episode Controls) -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-forward-step text-brand-accent"></i>
+              <h3 class="font-display font-bold text-lg">Continue Watching</h3>
+              <span class="text-xs px-2 py-0.5 rounded-full font-medium" style="background: var(--bg-card-subtle); color: var(--text-secondary);" id="continueWatchingCount">0 ongoing</span>
+            </div>
+            <button data-target="watching" class="view-switch-btn text-xs font-semibold text-brand-accent hover:underline flex items-center space-x-1">
+              <span>View All Watching</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+          </div>
+
+          <!-- Continue Watching Cards Container -->
+          <div id="continueWatchingContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Section: Recently Added & Quick Insights -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Recently Added Titles (2 cols) -->
+          <div class="lg:col-span-2 space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-clock-rotate-left text-brand-accent"></i>
+                <h3 class="font-display font-bold text-lg">Recently Added Titles</h3>
+              </div>
+              <button data-target="library" class="view-switch-btn text-xs font-semibold text-brand-accent hover:underline flex items-center space-x-1">
+                <span>View Library</span>
+                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+            <div id="recentlyAddedContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Library Overview & Genre Highlights (1 col) -->
+          <div class="space-y-4">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-chart-simple text-brand-accent"></i>
+              <h3 class="font-display font-bold text-lg">Library Overview</h3>
+            </div>
+            <div class="theme-card rounded-2xl p-5 space-y-4">
+              <div class="space-y-2">
+                <div class="flex justify-between text-xs font-medium">
+                  <span style="color: var(--text-secondary);">Overall Completion</span>
+                  <span id="dashboardProgressPercent" class="font-bold text-brand-accent">0%</span>
+                </div>
+                <div class="w-full h-2.5 rounded-full overflow-hidden" style="background: var(--bg-card-subtle);">
+                  <div id="dashboardProgressBar" class="progress-bar-fill h-full rounded-full transition-all duration-500" style="width: 0%;"></div>
+                </div>
+              </div>
+
+              <!-- Quick Stats Breakdown -->
+              <div class="pt-2 border-t space-y-2.5" style="border-color: var(--border-color);">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="flex items-center space-x-2" style="color: var(--text-secondary);">
+                    <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                    <span>Currently Watching</span>
+                  </span>
+                  <span id="dashStatWatching" class="font-bold">0</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="flex items-center space-x-2" style="color: var(--text-secondary);">
+                    <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                    <span>Plan to Watch</span>
+                  </span>
+                  <span id="dashStatPlan" class="font-bold">0</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="flex items-center space-x-2" style="color: var(--text-secondary);">
+                    <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                    <span>Completed</span>
+                  </span>
+                  <span id="dashStatCompleted" class="font-bold">0</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="flex items-center space-x-2" style="color: var(--text-secondary);">
+                    <span class="w-2 h-2 rounded-full bg-red-400"></span>
+                    <span>Dropped</span>
+                  </span>
+                  <span id="dashStatDropped" class="font-bold">0</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="flex items-center space-x-2" style="color: var(--text-secondary);">
+                    <span class="w-2 h-2 rounded-full bg-pink-400"></span>
+                    <span>Favorites</span>
+                  </span>
+                  <span id="dashStatFavorites" class="font-bold">0</span>
+                </div>
+              </div>
+
+              <!-- Average Rating Box -->
+              <div class="p-3 rounded-xl flex items-center justify-between" style="background: var(--bg-card-subtle);">
+                <div class="flex items-center space-x-2.5">
+                  <i class="fa-solid fa-star text-brand-warning text-lg"></i>
+                  <div>
+                    <div class="text-xs font-semibold">Average Personal Score</div>
+                    <div class="text-[10px]" style="color: var(--text-muted);">Across rated titles</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span id="dashAvgRating" class="font-display font-extrabold text-lg text-brand-warning">0.0</span>
+                  <span class="text-xs" style="color: var(--text-muted);">/10</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW B: MY LIBRARY ================= -->
+      <section id="viewLibrary" class="view-section hidden space-y-6">
+        <!-- View Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="font-display font-extrabold text-2xl tracking-tight flex items-center space-x-2">
+              <span>My Entertainment Library</span>
+              <span id="libraryTitleCount" class="text-xs font-semibold px-2.5 py-0.5 rounded-full" style="background: var(--bg-card-subtle); color: var(--text-secondary);">0 titles</span>
+            </h2>
+            <p class="text-xs md:text-sm mt-1" style="color: var(--text-secondary);">
+              Browse, filter, and organize all your saved movies, anime, and television series in one unified collection.
+            </p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="libraryAddNewBtn" class="px-4 py-2 rounded-xl text-white text-xs font-semibold flex items-center space-x-2 shadow-sm transition-transform hover:scale-105 active:scale-95" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+              <i class="fa-solid fa-plus"></i>
+              <span>Add Title</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Control Toolbar -->
+        <div class="theme-card rounded-2xl p-4 space-y-3">
+          <!-- Row 1: Type Pills & Status Pills -->
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <!-- Type Tabs -->
+            <div class="flex flex-wrap items-center gap-1.5 p-1 rounded-xl" style="background: var(--bg-card-subtle);">
+              <button data-type="all" class="type-filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">All Types</button>
+              <button data-type="movie" class="type-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Movies</button>
+              <button data-type="anime" class="type-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Anime</button>
+              <button data-type="series" class="type-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">TV Series</button>
+            </div>
+
+            <!-- Layout View Mode (Grid vs Compact List) -->
+            <div class="flex items-center space-x-1 p-1 rounded-xl" style="background: var(--bg-card-subtle);">
+              <button id="viewGridBtn" aria-label="Grid View" class="p-1.5 px-2.5 rounded-lg text-xs active text-brand-accent transition-colors" title="Grid View">
+                <i class="fa-solid fa-grip"></i>
+              </button>
+              <button id="viewListBtn" aria-label="List View" class="p-1.5 px-2.5 rounded-lg text-xs text-secondary hover:text-white transition-colors" title="List View">
+                <i class="fa-solid fa-list"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Row 2: Secondary Dropdown Filters & Search & Sort -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 pt-2 border-t" style="border-color: var(--border-color);">
+            <!-- Status Dropdown -->
+            <div>
+              <label class="block text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--text-muted);">Status</label>
+              <select id="filterStatus" class="theme-input w-full px-3 py-1.5 rounded-xl text-xs">
+                <option value="all">All Watch Statuses</option>
+                <option value="watching">Currently Watching</option>
+                <option value="plan">Plan to Watch</option>
+                <option value="completed">Completed</option>
+                <option value="dropped">Dropped</option>
+              </select>
+            </div>
+
+            <!-- Genre Dropdown -->
+            <div>
+              <label class="block text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--text-muted);">Genre</label>
+              <select id="filterGenre" class="theme-input w-full px-3 py-1.5 rounded-xl text-xs">
+                <option value="all">All Genres</option>
+              </select>
+            </div>
+
+            <!-- Platform Dropdown -->
+            <div>
+              <label class="block text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--text-muted);">Streaming Platform</label>
+              <select id="filterPlatform" class="theme-input w-full px-3 py-1.5 rounded-xl text-xs">
+                <option value="all">All Platforms</option>
+                <option value="Netflix">Netflix</option>
+                <option value="Crunchyroll">Crunchyroll</option>
+                <option value="Prime Video">Prime Video</option>
+                <option value="Max">Max</option>
+                <option value="Disney+">Disney+</option>
+                <option value="Hulu">Hulu</option>
+                <option value="Apple TV+">Apple TV+</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- Sort By Dropdown -->
+            <div>
+              <label class="block text-[10px] font-semibold uppercase tracking-wider mb-1" style="color: var(--text-muted);">Sort By</label>
+              <select id="sortBy" class="theme-input w-full px-3 py-1.5 rounded-xl text-xs">
+                <option value="recent">Recently Added</option>
+                <option value="title_asc">Title (A - Z)</option>
+                <option value="title_desc">Title (Z - A)</option>
+                <option value="rating_desc">Highest Rating</option>
+                <option value="rating_asc">Lowest Rating</option>
+                <option value="year_desc">Release Year (Newest)</option>
+                <option value="year_asc">Release Year (Oldest)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Library Items Grid / List Container -->
+        <div id="libraryContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Empty State Message -->
+        <div id="libraryEmptyState" class="hidden text-center py-16 theme-card rounded-2xl p-8 space-y-4">
+          <div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-3xl bg-purple-500/10 text-brand-accent">
+            <i class="fa-solid fa-film"></i>
+          </div>
+          <div>
+            <h4 class="font-display font-bold text-lg">No Titles Found</h4>
+            <p class="text-xs max-w-sm mx-auto mt-1" style="color: var(--text-secondary);">Try adjusting your search query, genre, or status filters, or add a brand new title to your watchlist.</p>
+          </div>
+          <button id="emptyStateAddBtn" class="px-4 py-2 rounded-xl text-white text-xs font-semibold shadow-sm" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+            Add New Title
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= VIEW C: CURRENTLY WATCHING ================= -->
+      <section id="viewWatching" class="view-section hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="font-display font-extrabold text-2xl tracking-tight flex items-center space-x-2">
+              <span class="text-brand-accent">▶</span>
+              <span>Currently Watching</span>
+            </h2>
+            <p class="text-xs md:text-sm mt-1" style="color: var(--text-secondary);">
+              Keep tabs on ongoing series, log watched episodes with one click, and see immediate progress percentages.
+            </p>
+          </div>
+          <button class="add-title-preset-btn px-4 py-2 rounded-xl text-white text-xs font-semibold flex items-center space-x-2" data-preset-status="watching" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Ongoing Title</span>
+          </button>
+        </div>
+
+        <!-- Table Summary of Progress -->
+        <div class="theme-card rounded-2xl overflow-hidden">
+          <div class="p-4 border-b flex items-center justify-between" style="border-color: var(--border-color);">
+            <span class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted);">Live Progress Tracker</span>
+            <span class="text-xs" style="color: var(--text-secondary);">Click +1 to advance watched episodes</span>
+          </div>
+          <div id="watchingListContainer" class="divide-y" style="border-color: var(--border-color);">
+            <!-- Populated dynamically with full progress controls -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW D: PLAN TO WATCH ================= -->
+      <section id="viewPlan" class="view-section hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="font-display font-extrabold text-2xl tracking-tight flex items-center space-x-2">
+              <i class="fa-solid fa-bookmark text-blue-400"></i>
+              <span>Plan to Watch</span>
+            </h2>
+            <p class="text-xs md:text-sm mt-1" style="color: var(--text-secondary);">
+              Your future entertainment queue. Ready to start? Tap "Start Watching" to immediately move any title to your active tracker.
+            </p>
+          </div>
+          <button class="add-title-preset-btn px-4 py-2 rounded-xl text-white text-xs font-semibold flex items-center space-x-2" data-preset-status="plan" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add to Watchlist</span>
+          </button>
+        </div>
+
+        <div id="planListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- ================= VIEW E: COMPLETED ================= -->
+      <section id="viewCompleted" class="view-section hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="font-display font-extrabold text-2xl tracking-tight flex items-center space-x-2">
+              <i class="fa-solid fa-circle-check text-brand-success"></i>
+              <span>Completed Library</span>
+            </h2>
+            <p class="text-xs md:text-sm mt-1" style="color: var(--text-secondary);">
+              Your hall of fame. View finished anime, movies, and TV series alongside your personal score ratings and reviews.
+            </p>
+          </div>
+        </div>
+
+        <div id="completedListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Populated dynamically with reviews and score badges -->
+        </div>
+      </section>
+
+      <!-- ================= VIEW F: FAVORITES ================= -->
+      <section id="viewFavorites" class="view-section hidden space-y-6">
+        <div>
+          <h2 class="font-display font-extrabold text-2xl tracking-tight flex items-center space-x-2">
+            <i class="fa-solid fa-heart text-pink-400"></i>
+            <span>Personal Favorites</span>
+          </h2>
+          <p class="text-xs md:text-sm mt-1" style="color: var(--text-secondary);">
+            Your hand-picked top-tier stories, legendary cinema, and standout series marked with a heart.
+          </p>
+        </div>
+
+        <div id="favoritesListContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- ================= VIEW G: MOVIES ================= -->
+      <section id="viewMovies" class="view-section hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="font-display font-extrabold text-2xl tracking-tight flex items-center space-x-2">
+              <i class="fa-solid fa-clapperboard text-amber-400"></i>
+              <span>Movies Catalog</span>
+            </h2>
+            <p class="text-xs md:text-sm mt-1" style="color: var(--text-secondary);">
+              Feature films and cinema tracking with runtimes, release years, and streaming availability.
+            </p>
+          </div>
+          <button class="add-title-preset-btn px-4 py-2 rounded-xl text-white text-xs font-semibold flex items-center space-x-2" data-preset-type="movie" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Movie</span>
+          </button>
+        </div>
+
+        <div id="moviesListContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- ================= VIEW H: ANIME & TV SERIES ================= -->
+      <section id="viewAnimeTv" class="view-section hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="font-display font-extrabold text-2xl tracking-tight flex items-center space-x-2">
+              <i class="fa-solid fa-tv text-indigo-400"></i>
+              <span>Anime & TV Series</span>
+            </h2>
+            <p class="text-xs md:text-sm mt-1" style="color: var(--text-secondary);">
+              Episodic storytelling tracking: total episodes, watched progress, season notes, and platforms.
+            </p>
+          </div>
+          <button class="add-title-preset-btn px-4 py-2 rounded-xl text-white text-xs font-semibold flex items-center space-x-2" data-preset-type="anime" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Series / Anime</span>
+          </button>
+        </div>
+
+        <div id="animeTvListContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- ================= VIEW I: DROPPED ================= -->
+      <section id="viewDropped" class="view-section hidden space-y-6">
+        <div>
+          <h2 class="font-display font-extrabold text-2xl tracking-tight flex items-center space-x-2">
+            <i class="fa-solid fa-circle-xmark text-red-400"></i>
+            <span>Dropped Titles</span>
+          </h2>
+          <p class="text-xs md:text-sm mt-1" style="color: var(--text-secondary);">
+            Shows or movies set aside with notes on why you stopped. Restore them to your active watchlist whenever you're ready.
+          </p>
+        </div>
+
+        <div id="droppedListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- ================= VIEW J: STATISTICS ================= -->
+      <section id="viewStatistics" class="view-section hidden space-y-6">
+        <div>
+          <h2 class="font-display font-extrabold text-2xl tracking-tight flex items-center space-x-2">
+            <i class="fa-solid fa-chart-pie text-brand-accent"></i>
+            <span>Entertainment Analytics & Insights</span>
+          </h2>
+          <p class="text-xs md:text-sm mt-1" style="color: var(--text-secondary);">
+            Comprehensive breakdown of your viewing habits, completion velocity, genre preferences, and rating distribution.
+          </p>
+        </div>
+
+        <!-- Big Stats Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="theme-card rounded-2xl p-5">
+            <div class="text-xs font-semibold uppercase" style="color: var(--text-muted);">Total Screen Time</div>
+            <div id="statsScreenTimeHours" class="font-display font-extrabold text-3xl mt-2 text-brand-accent">0 hrs</div>
+            <div id="statsScreenTimeDays" class="text-xs mt-1" style="color: var(--text-secondary);">~0.0 days</div>
+          </div>
+          <div class="theme-card rounded-2xl p-5">
+            <div class="text-xs font-semibold uppercase" style="color: var(--text-muted);">Mean Rating</div>
+            <div id="statsMeanRating" class="font-display font-extrabold text-3xl mt-2 text-brand-warning">0.0</div>
+            <div class="text-xs mt-1" style="color: var(--text-secondary);">Scale of 1.0 - 10.0</div>
+          </div>
+          <div class="theme-card rounded-2xl p-5">
+            <div class="text-xs font-semibold uppercase" style="color: var(--text-muted);">Completion Rate</div>
+            <div id="statsCompletionRateBig" class="font-display font-extrabold text-3xl mt-2 text-brand-success">0%</div>
+            <div id="statsCompletedRatio" class="text-xs mt-1" style="color: var(--text-secondary);">0 of 0 completed</div>
+          </div>
+          <div class="theme-card rounded-2xl p-5">
+            <div class="text-xs font-semibold uppercase" style="color: var(--text-muted);">Favorite Affinity</div>
+            <div id="statsFavoriteCount" class="font-display font-extrabold text-3xl mt-2 text-pink-400">0</div>
+            <div id="statsFavoriteRatio" class="text-xs mt-1" style="color: var(--text-secondary);">0% of library favorited</div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Chart 1: Status Breakdown (Doughnut) -->
+          <div class="theme-card rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display font-bold text-base">Watch Status Distribution</h3>
+              <i class="fa-solid fa-chart-pie text-brand-accent text-sm"></i>
+            </div>
+            <div class="relative h-64">
+              <canvas id="chartStatus"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 2: Format Distribution (Movies vs Anime vs TV) -->
+          <div class="theme-card rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display font-bold text-base">Media Type Breakdown</h3>
+              <i class="fa-solid fa-film text-brand-secondary text-sm"></i>
+            </div>
+            <div class="relative h-64">
+              <canvas id="chartType"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 3: Top Genres (Bar Chart) -->
+          <div class="theme-card rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display font-bold text-base">Top Genres in Library</h3>
+              <i class="fa-solid fa-tags text-brand-success text-sm"></i>
+            </div>
+            <div class="relative h-64">
+              <canvas id="chartGenre"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 4: Rating Distribution -->
+          <div class="theme-card rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display font-bold text-base">Personal Score Ratings</h3>
+              <i class="fa-solid fa-star text-brand-warning text-sm"></i>
+            </div>
+            <div class="relative h-64">
+              <canvas id="chartRating"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= MODALS & OVERLAYS ================= -->
+
+  <!-- Modal: Add / Edit Title -->
+  <div id="titleModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div id="titleModalBackdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="theme-card relative z-10 w-full max-w-2xl rounded-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border-color);">
+        <h3 id="modalHeading" class="font-display font-bold text-xl accent-gradient-text">Add Title to Library</h3>
+        <button id="closeTitleModalBtn" aria-label="Close modal" class="p-2 rounded-lg text-secondary hover:text-white transition-colors">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="titleForm" class="space-y-4">
+        <input type="hidden" id="formTitleId">
+
+        <!-- Title Name -->
+        <div>
+          <label for="formTitleName" class="block text-xs font-semibold mb-1" style="color: var(--text-secondary);">Title Name *</label>
+          <input type="text" id="formTitleName" required placeholder="e.g., Attack on Titan, Inception, Breaking Bad" class="theme-input w-full px-3.5 py-2.5 rounded-xl text-sm">
+        </div>
+
+        <!-- Type & Status Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="formType" class="block text-xs font-semibold mb-1" style="color: var(--text-secondary);">Type *</label>
+            <select id="formType" class="theme-input w-full px-3.5 py-2.5 rounded-xl text-sm">
+              <option value="anime">Anime</option>
+              <option value="movie">Movie</option>
+              <option value="series">TV Series</option>
+            </select>
+          </div>
+          <div>
+            <label for="formStatus" class="block text-xs font-semibold mb-1" style="color: var(--text-secondary);">Watch Status *</label>
+            <select id="formStatus" class="theme-input w-full px-3.5 py-2.5 rounded-xl text-sm">
+              <option value="plan">Plan to Watch</option>
+              <option value="watching">Currently Watching</option>
+              <option value="completed">Completed</option>
+              <option value="dropped">Dropped</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Release Year & Streaming Platform -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="formYear" class="block text-xs font-semibold mb-1" style="color: var(--text-secondary);">Release Year</label>
+            <input type="number" id="formYear" min="1900" max="2099" placeholder="2024" class="theme-input w-full px-3.5 py-2.5 rounded-xl text-sm">
+          </div>
+          <div>
+            <label for="formPlatform" class="block text-xs font-semibold mb-1" style="color: var(--text-secondary);">Streaming Platform</label>
+            <select id="formPlatform" class="theme-input w-full px-3.5 py-2.5 rounded-xl text-sm">
+              <option value="Netflix">Netflix</option>
+              <option value="Crunchyroll">Crunchyroll</option>
+              <option value="Prime Video">Prime Video</option>
+              <option value="Max">Max</option>
+              <option value="Disney+">Disney+</option>
+              <option value="Hulu">Hulu</option>
+              <option value="Apple TV+">Apple TV+</option>
+              <option value="Other">Other / Cinema</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Episode Progress / Runtime -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="formTotalEpisodes" id="labelTotalEpisodes" class="block text-xs font-semibold mb-1" style="color: var(--text-secondary);">Total Episodes (or Runtime in mins)</label>
+            <input type="number" id="formTotalEpisodes" min="1" max="5000" placeholder="e.g. 25 eps or 148 min" class="theme-input w-full px-3.5 py-2.5 rounded-xl text-sm">
+          </div>
+          <div>
+            <label for="formEpisodesWatched" id="labelEpisodesWatched" class="block text-xs font-semibold mb-1" style="color: var(--text-secondary);">Episodes Watched</label>
+            <input type="number" id="formEpisodesWatched" min="0" max="5000" value="0" class="theme-input w-full px-3.5 py-2.5 rounded-xl text-sm">
+          </div>
+        </div>
+
+        <!-- Genres (Comma separated) -->
+        <div>
+          <label for="formGenres" class="block text-xs font-semibold mb-1" style="color: var(--text-secondary);">Genres (comma separated)</label>
+          <input type="text" id="formGenres" placeholder="Action, Sci-Fi, Shonen, Drama" class="theme-input w-full px-3.5 py-2.5 rounded-xl text-sm">
+        </div>
+
+        <!-- Poster Image URL & Presets -->
+        <div>
+          <label for="formPoster" class="block text-xs font-semibold mb-1" style="color: var(--text-secondary);">Poster Image URL</label>
+          <input type="text" id="formPoster" placeholder="https://... or choose a sample image" class="theme-input w-full px-3.5 py-2.5 rounded-xl text-sm">
+          <!-- Preset poster chips -->
+          <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+            <span class="text-[10px]" style="color: var(--text-muted);">Quick Presets:</span>
+            <button type="button" class="preset-poster-btn text-[10px] px-2 py-0.5 rounded border hover:border-brand-accent transition-colors" data-url="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&auto=format&fit=crop&q=80">Cinema</button>
+            <button type="button" class="preset-poster-btn text-[10px] px-2 py-0.5 rounded border hover:border-brand-accent transition-colors" data-url="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop&q=80">Anime</button>
+            <button type="button" class="preset-poster-btn text-[10px] px-2 py-0.5 rounded border hover:border-brand-accent transition-colors" data-url="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=80">Sci-Fi Space</button>
+            <button type="button" class="preset-poster-btn text-[10px] px-2 py-0.5 rounded border hover:border-brand-accent transition-colors" data-url="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80">Cyberpunk</button>
+          </div>
+        </div>
+
+        <!-- Rating & Favorite Toggle -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+          <div>
+            <label for="formRating" class="block text-xs font-semibold mb-1" style="color: var(--text-secondary);">Personal Rating (1.0 - 10.0)</label>
+            <div class="flex items-center space-x-2">
+              <input type="number" id="formRating" min="0" max="10" step="0.1" placeholder="9.5" class="theme-input w-24 px-3.5 py-2.5 rounded-xl text-sm">
+              <div class="flex items-center space-x-1 text-brand-warning text-sm" id="starRatingDisplay">
+                <i class="fa-solid fa-star"></i>
+                <span class="text-xs" style="color: var(--text-secondary);">/ 10</span>
+              </div>
+            </div>
+          </div>
+          <div class="pt-4">
+            <label class="flex items-center space-x-3 cursor-pointer">
+              <input type="checkbox" id="formFavorite" class="w-4 h-4 rounded text-brand-accent focus:ring-brand-accent border-gray-600 bg-gray-800">
+              <span class="text-xs font-semibold flex items-center space-x-1.5">
+                <i class="fa-solid fa-heart text-pink-400"></i>
+                <span>Mark as Personal Favorite</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Dropped Reason (only when status is dropped) -->
+        <div id="droppedReasonGroup" class="hidden">
+          <label for="formDroppedReason" class="block text-xs font-semibold mb-1 text-red-400">Reason for Dropping</label>
+          <input type="text" id="formDroppedReason" placeholder="e.g. Pacing issues, lost interest after Season 1..." class="theme-input w-full px-3.5 py-2.5 rounded-xl text-sm">
+        </div>
+
+        <!-- Personal Notes / Review -->
+        <div>
+          <label for="formNotes" class="block text-xs font-semibold mb-1" style="color: var(--text-secondary);">Personal Notes & Review</label>
+          <textarea id="formNotes" rows="3" placeholder="Write personal reflections, thoughts, episode milestones, or review..." class="theme-input w-full px-3.5 py-2.5 rounded-xl text-sm"></textarea>
+        </div>
+
+        <!-- Form Buttons -->
+        <div class="pt-3 border-t flex items-center justify-end space-x-3" style="border-color: var(--border-color);">
+          <button type="button" id="cancelTitleModalBtn" class="px-4 py-2 rounded-xl text-xs font-semibold theme-input hover:border-brand-accent transition-colors">
+            Cancel
+          </button>
+          <button type="submit" id="saveTitleModalBtn" class="px-5 py-2 rounded-xl text-xs font-semibold text-white shadow-md hover:scale-[1.02] active:scale-[0.98] transition-transform" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+            Save Title
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Detail View -->
+  <div id="detailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div id="detailModalBackdrop" class="fixed inset-0 bg-black/75 backdrop-blur-sm"></div>
+    <div class="theme-card relative z-10 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
+      <!-- Detail Backdrop Header -->
+      <div class="relative h-48 md:h-56 bg-cover bg-center shrink-0" id="detailPosterBg">
+        <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-brand-card/60 to-transparent"></div>
+        <button id="closeDetailModalBtn" aria-label="Close detail view" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/90 transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="absolute bottom-4 left-6 right-6 flex items-end justify-between">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span id="detailTypeBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-brand-accent">Anime</span>
+              <span id="detailStatusBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-400">Watching</span>
+              <span id="detailFavBadge" class="hidden text-pink-400 text-sm"><i class="fa-solid fa-heart"></i></span>
+            </div>
+            <h3 id="detailTitle" class="font-display font-extrabold text-2xl md:text-3xl mt-1 text-white">Title Name</h3>
+          </div>
+          <div class="text-right">
+            <div class="flex items-center space-x-1 text-brand-warning">
+              <i class="fa-solid fa-star text-base"></i>
+              <span id="detailRating" class="font-display font-extrabold text-xl text-white">9.5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Body -->
+      <div class="p-6 overflow-y-auto space-y-5">
+        <!-- Metadata Row -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div class="p-3 rounded-xl" style="background: var(--bg-card-subtle);">
+            <div style="color: var(--text-muted);">Release Year</div>
+            <div id="detailYear" class="font-semibold mt-0.5">2024</div>
+          </div>
+          <div class="p-3 rounded-xl" style="background: var(--bg-card-subtle);">
+            <div style="color: var(--text-muted);">Platform</div>
+            <div id="detailPlatform" class="font-semibold mt-0.5">Netflix</div>
+          </div>
+          <div class="p-3 rounded-xl" style="background: var(--bg-card-subtle);">
+            <div style="color: var(--text-muted);">Episodes Watched</div>
+            <div id="detailEpisodes" class="font-semibold mt-0.5">18 / 25</div>
+          </div>
+          <div class="p-3 rounded-xl" style="background: var(--bg-card-subtle);">
+            <div style="color: var(--text-muted);">Genres</div>
+            <div id="detailGenres" class="font-semibold mt-0.5">Action, Sci-Fi</div>
+          </div>
+        </div>
+
+        <!-- Episode Tracker Interactive in Modal -->
+        <div id="detailEpisodeTracker" class="p-4 rounded-xl border space-y-3" style="border-color: var(--border-color); background: var(--bg-card-subtle);">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-semibold">Watching Progress</span>
+            <span id="detailProgressText" class="font-bold text-brand-accent">72%</span>
+          </div>
+          <div class="w-full h-2 rounded-full overflow-hidden bg-gray-700/30">
+            <div id="detailProgressBar" class="progress-bar-fill h-full rounded-full transition-all duration-300" style="width: 72%;"></div>
+          </div>
+          <div class="flex items-center justify-between pt-1">
+            <div class="flex items-center space-x-2">
+              <button id="detailDecEpisodeBtn" class="px-2.5 py-1 rounded-lg text-xs font-semibold theme-input hover:border-brand-accent">-1 Ep</button>
+              <button id="detailIncEpisodeBtn" class="px-3 py-1 rounded-lg text-xs font-semibold text-white bg-brand-accent hover:opacity-90">+1 Ep</button>
+            </div>
+            <button id="detailMarkCompletedBtn" class="text-xs font-semibold text-brand-success hover:underline">
+              Mark as Completed
+            </button>
+          </div>
+        </div>
+
+        <!-- Notes / Review -->
+        <div class="space-y-1.5">
+          <h4 class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted);">Personal Review & Notes</h4>
+          <p id="detailNotes" class="text-xs md:text-sm leading-relaxed p-3.5 rounded-xl border italic" style="border-color: var(--border-color); background: var(--bg-card-subtle);">
+            No notes added yet.
+          </p>
+        </div>
+
+        <!-- Dropped reason box if dropped -->
+        <div id="detailDroppedSection" class="hidden p-3.5 rounded-xl border border-red-500/20 bg-red-500/5 text-xs text-red-400 space-y-1">
+          <span class="font-bold">Dropped Reason:</span>
+          <p id="detailDroppedReasonText"></p>
+        </div>
+
+        <!-- Actions -->
+        <div class="pt-4 border-t flex items-center justify-between" style="border-color: var(--border-color);">
+          <div class="flex items-center space-x-2">
+            <button id="detailToggleFavBtn" class="px-3 py-1.5 rounded-xl text-xs font-semibold theme-input hover:text-pink-400 transition-colors">
+              <i class="fa-solid fa-heart mr-1 text-pink-400"></i>
+              <span>Toggle Favorite</span>
+            </button>
+            <button id="detailEditBtn" class="px-3 py-1.5 rounded-xl text-xs font-semibold theme-input hover:border-brand-accent transition-colors">
+              <i class="fa-solid fa-pen-to-square mr-1"></i>
+              <span>Edit Title</span>
+            </button>
+          </div>
+          <button id="detailDeleteBtn" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-red-400 theme-input hover:bg-red-500/10 transition-colors">
+            <i class="fa-solid fa-trash-can mr-1"></i>
+            <span>Delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Confirmation Dialog (Replaces native confirm/alert safely) -->
+  <div id="confirmModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div id="confirmBackdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="theme-card relative z-10 w-full max-w-sm rounded-2xl p-6 shadow-2xl space-y-4 text-center">
+      <div id="confirmIcon" class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-xl bg-red-500/10 text-brand-danger">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div>
+        <h4 id="confirmHeading" class="font-display font-bold text-lg">Confirm Action</h4>
+        <p id="confirmMessage" class="text-xs mt-1 leading-relaxed" style="color: var(--text-secondary);">Are you sure you want to proceed?</p>
+      </div>
+      <div class="flex items-center justify-center space-x-3 pt-2">
+        <button id="confirmCancelBtn" class="px-4 py-2 rounded-xl text-xs font-semibold theme-input hover:border-brand-accent transition-colors">
+          Cancel
+        </button>
+        <button id="confirmActionBtn" class="px-5 py-2 rounded-xl text-xs font-semibold text-white shadow-md transition-transform hover:scale-105" style="background: var(--danger);">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Backup & Restore (JSON Export / Import) -->
+  <div id="backupModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div id="backupBackdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div class="theme-card relative z-10 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--border-color);">
+        <h3 class="font-display font-bold text-lg accent-gradient-text flex items-center space-x-2">
+          <i class="fa-solid fa-database"></i>
+          <span>Backup & Data Management</span>
+        </h3>
+        <button id="closeBackupModalBtn" aria-label="Close backup modal" class="p-2 rounded-lg text-secondary hover:text-white transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <!-- Export Box -->
+        <div class="p-4 rounded-xl border space-y-2" style="border-color: var(--border-color); background: var(--bg-card-subtle);">
+          <div class="font-bold flex items-center space-x-1.5 text-brand-accent">
+            <i class="fa-solid fa-file-export"></i>
+            <span>Export CineTrack Library</span>
+          </div>
+          <p style="color: var(--text-secondary);">Download a full JSON backup of all your watchlist titles, episode milestones, personal ratings, and notes.</p>
+          <div class="pt-1 flex items-center space-x-2">
+            <button id="downloadJsonBtn" class="px-3.5 py-2 rounded-xl text-white font-semibold text-xs shadow-sm" style="background: linear-gradient(135deg, #9B83FF, #6C56DF);">
+              Download Backup JSON
+            </button>
+            <button id="copyJsonBtn" class="px-3.5 py-2 rounded-xl font-semibold text-xs theme-input hover:border-brand-accent transition-colors">
+              Copy JSON to Clipboard
+            </button>
+          </div>
+        </div>
+
+        <!-- Import Box -->
+        <div class="p-4 rounded-xl border space-y-2" style="border-color: var(--border-color); background: var(--bg-card-subtle);">
+          <div class="font-bold flex items-center space-x-1.5 text-brand-success">
+            <i class="fa-solid fa-file-import"></i>
+            <span>Restore / Import Data</span>
+          </div>
+          <p style="color: var(--text-secondary);">Paste raw CineTrack JSON below or reset back to default starter titles.</p>
+          <textarea id="importJsonTextarea" rows="3" placeholder="Paste CineTrack JSON data here..." class="theme-input w-full p-2.5 rounded-xl font-mono text-[11px]"></textarea>
+          <div class="flex items-center space-x-2 pt-1">
+            <button id="applyImportBtn" class="px-3.5 py-2 rounded-xl text-white font-semibold text-xs bg-brand-success hover:opacity-90">
+              Apply Import
+            </button>
+            <button id="resetDefaultsBtn" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-red-400 theme-input hover:bg-red-500/10">
+              Reset to Sample Data
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
